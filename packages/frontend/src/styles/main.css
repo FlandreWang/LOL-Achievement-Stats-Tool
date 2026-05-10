@@ -8,6 +8,8 @@
   --color-border: #E0E0E0;
   --color-text: #1A1A1A;
   --color-muted: #666666;
+  --color-primary: #0AC8B9;
+  --color-gold: #C8AA6E;
 }
 
 .dark {
@@ -16,6 +18,8 @@
   --color-border: #2A3544;
   --color-text: #E8DFD1;
   --color-muted: #8B9DAF;
+  --color-primary: #0AC8B9;
+  --color-gold: #C8AA6E;
 }
 
 body {

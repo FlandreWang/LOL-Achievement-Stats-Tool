@@ -101,8 +101,8 @@ function particleStyle(index) {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--lol-card);
-  border: 1px solid var(--lol-border);
+  background: var(--color-card, #FFFFFF);
+  border: 1px solid var(--color-border, #E0E0E0);
   border-radius: 0.75rem;
   position: relative;
   overflow: hidden;
@@ -110,7 +110,7 @@ function particleStyle(index) {
 }
 
 .achievement-progress.completed {
-  border-color: var(--lol-gold);
+  border-color: var(--color-gold, #C8AA6E);
   box-shadow: 0 0 20px rgba(200, 170, 90, 0.2);
 }
 
@@ -125,7 +125,7 @@ function particleStyle(index) {
 }
 
 .progress-ring-bg {
-  stroke: var(--lol-border);
+  stroke: var(--color-border, #E0E0E0);
   transition: stroke 0.3s ease;
 }
 
@@ -136,7 +136,7 @@ function particleStyle(index) {
 }
 
 .completed .progress-ring-fill {
-  stroke: var(--lol-gold);
+  stroke: var(--color-gold, #C8AA6E);
   animation: goldPulse 2s ease-in-out infinite;
 }
 
@@ -151,7 +151,7 @@ function particleStyle(index) {
 .progress-percent {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--lol-text);
+  color: var(--color-text, #E8DFD1);
   font-variant-numeric: tabular-nums;
   position: relative;
   z-index: 2;
@@ -159,7 +159,7 @@ function particleStyle(index) {
 }
 
 .completed .progress-percent {
-  color: var(--lol-gold);
+  color: var(--color-gold, #C8AA6E);
 }
 
 /* 液面球体 */
@@ -175,7 +175,7 @@ function particleStyle(index) {
 }
 
 .liquid-ball.completed {
-  border-color: var(--lol-gold);
+  border-color: var(--color-gold, #C8AA6E);
   box-shadow:
     inset 0 0 8px rgba(0, 0, 0, 0.1),
     0 0 12px rgba(200, 170, 90, 0.4);
@@ -225,7 +225,7 @@ function particleStyle(index) {
 .progress-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--lol-text);
+  color: var(--color-text, #E8DFD1);
   margin-bottom: 0.25rem;
   white-space: nowrap;
   overflow: hidden;
@@ -242,28 +242,28 @@ function particleStyle(index) {
 .progress-completed {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--lol-primary);
+  color: var(--color-primary, #0AC8B9);
   font-variant-numeric: tabular-nums;
 }
 
 .completed .progress-completed {
-  color: var(--lol-gold);
+  color: var(--color-gold, #C8AA6E);
 }
 
 .progress-separator {
   font-size: 1rem;
-  color: var(--lol-muted);
+  color: var(--color-muted, #8B9DAF);
 }
 
 .progress-total {
   font-size: 1rem;
-  color: var(--lol-muted);
+  color: var(--color-muted, #8B9DAF);
   font-variant-numeric: tabular-nums;
 }
 
 .progress-label {
   font-size: 0.75rem;
-  color: var(--lol-muted);
+  color: var(--color-muted, #8B9DAF);
 }
 
 /* 粒子效果 */
@@ -277,7 +277,7 @@ function particleStyle(index) {
   position: absolute;
   width: 6px;
   height: 6px;
-  background: var(--lol-gold);
+  background: var(--color-gold, #C8AA6E);
   border-radius: 50%;
   top: 50%;
   left: 50%;
