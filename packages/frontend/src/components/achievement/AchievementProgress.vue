@@ -19,6 +19,7 @@
       <!-- 中心：液面球体 + 数字 -->
       <div class="progress-ring-content">
         <div class="liquid-ball" :class="{ completed: isCompleted }">
+          <div class="liquid-fill" :style="fillStyle"></div>
           <svg class="liquid-wave liquid-wave-back" :style="waveStyle" viewBox="0 0 800 72" preserveAspectRatio="none">
             <path
               :fill="waveBackColor"
@@ -113,6 +114,14 @@ function getColor(pct) {
 }
 
 const currentColors = computed(() => getColor(percent.value))
+
+const fillStyle = computed(() => {
+  const c = currentColors.value
+  return {
+    top: `${liquidOffset.value}%`,
+    background: `linear-gradient(to top, rgb(${c.bottom.join(',')}), rgb(${c.top.join(',')}))`,
+  }
+})
 
 const waveStyle = computed(() => ({
   top: `${liquidOffset.value}%`,
@@ -219,11 +228,19 @@ function particleStyle(index) {
     0 0 12px rgba(200, 170, 90, 0.4);
 }
 
-.liquid-wave {
+.liquid-fill {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
+  transition: top 0.8s ease;
+}
+
+.liquid-wave {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 36px;
   transition: top 0.8s ease;
 }
 
