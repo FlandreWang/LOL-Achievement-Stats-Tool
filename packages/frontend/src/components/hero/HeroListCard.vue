@@ -23,11 +23,24 @@
 
       <!-- 信息区域 -->
       <RouterLink :to="`/hero/${hero.heroId}`" class="flex-1 min-w-0">
-        <div class="font-medium text-lol-text truncate" :class="compact ? 'text-xs' : 'text-sm'">
-          {{ hero.name }}
-          <span v-if="compact" class="text-lol-muted font-normal ml-1">{{ hero.title }}</span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-medium text-lol-text truncate" :class="compact ? 'text-xs' : 'text-sm'">
+            {{ hero.name }}
+          </span>
+          <span v-if="!compact" class="text-xs text-lol-muted truncate">{{ hero.title }}</span>
+          <span v-if="compact" class="text-xs text-lol-muted">{{ hero.title }}</span>
+          <!-- 角色标签：英雄维度下显示 -->
+          <template v-if="completed === undefined && hero.roles && hero.roles.length > 0">
+            <span
+              v-for="role in hero.roles"
+              :key="role"
+              class="text-xs px-2 py-0.5 rounded-full bg-lol-primary/10 text-lol-primary whitespace-nowrap"
+            >
+              {{ role }}
+            </span>
+          </template>
         </div>
-        <div v-if="!compact" class="text-xs text-lol-muted truncate">{{ hero.title }}</div>
+        <div v-if="!compact" class="text-xs text-lol-muted truncate mt-0.5">{{ hero.alias }}</div>
         <!-- 成就tab：显示完成状态 -->
         <div v-if="completed !== undefined" :class="compact ? 'mt-0.5' : 'mt-1'">
           <span
@@ -41,6 +54,18 @@
           </span>
         </div>
       </RouterLink>
+
+      <!-- 总体成就进度条：英雄维度下显示 -->
+      <div v-if="completed === undefined && !compact" class="shrink-0 w-24 text-right">
+        <div class="text-xs text-lol-muted tabular-nums mb-1">{{ completedCount }}/{{ totalCount }}</div>
+        <div class="h-1.5 bg-lol-border rounded-full overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            :class="completedCount === totalCount && totalCount > 0 ? 'bg-lol-gold' : 'bg-lol-primary'"
+            :style="{ width: progressPercent + '%' }"
+          />
+        </div>
+      </div>
 
       <!-- 展开/折叠按钮 -->
       <button
@@ -58,38 +83,30 @@
     <Transition
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="max-h-0 opacity-0"
-      enter-to-class="max-h-40 opacity-100"
+      enter-to-class="max-h-80 opacity-100"
       leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="max-h-40 opacity-100"
+      leave-from-class="max-h-80 opacity-100"
       leave-to-class="max-h-0 opacity-0"
     >
       <div v-if="expanded" class="overflow-hidden border-t border-lol-border">
-        <div class="p-3 space-y-2">
-          <!-- 角色标签 -->
-          <div v-if="hero.roles && hero.roles.length > 0" class="flex flex-wrap gap-1.5">
-            <span
-              v-for="role in hero.roles"
-              :key="role"
-              class="text-xs px-2 py-0.5 rounded-full bg-lol-primary/10 text-lol-primary"
+        <div class="p-3 space-y-1 max-h-80 overflow-y-auto">
+          <!-- 逐项成就列表：英雄维度下显示 -->
+          <template v-if="completed === undefined && heroAchievements.length > 0">
+            <div
+              v-for="ach in heroAchievements"
+              :key="ach.id"
+              class="flex items-center gap-2 py-1"
             >
-              {{ role }}
-            </span>
-          </div>
-
-          <!-- 成就进度 -->
-          <div v-if="achievements && achievements.length > 0">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="text-xs text-lol-muted">成就进度</span>
-              <span class="text-xs text-lol-muted tabular-nums">{{ completedCount }}/{{ achievements.length }}</span>
+              <CheckCircle2 v-if="ach.completed" class="w-4 h-4 text-lol-gold shrink-0" />
+              <Circle v-else class="w-4 h-4 text-lol-muted/40 shrink-0" />
+              <span class="text-sm" :class="ach.completed ? 'text-lol-text' : 'text-lol-muted'">
+                {{ ach.name }}
+              </span>
+              <span v-if="ach.completedAt" class="text-xs text-lol-muted ml-auto">
+                {{ formatDate(ach.completedAt) }}
+              </span>
             </div>
-            <div class="h-1.5 bg-lol-border rounded-full overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all duration-500"
-                :class="completedCount === achievements.length ? 'bg-lol-gold' : 'bg-lol-primary'"
-                :style="{ width: progressPercent + '%' }"
-              />
-            </div>
-          </div>
+          </template>
         </div>
       </div>
     </Transition>
@@ -99,26 +116,35 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ChevronDown } from 'lucide-vue-next'
+import { ChevronDown, CheckCircle2, Circle } from 'lucide-vue-next'
+import { useRecordStore } from '../../stores/record'
+import { useAchievementStore } from '../../stores/achievement'
 
 const props = defineProps({
   hero: { type: Object, required: true },
   completed: { type: Boolean, default: undefined },
   completedAt: { type: String, default: '' },
-  achievements: { type: Array, default: () => [] },
   compact: { type: Boolean, default: false },
 })
 
+const recordStore = useRecordStore()
+const achievementStore = useAchievementStore()
+
 const expanded = ref(false)
 
-const completedCount = computed(() => {
-  if (!props.achievements) return 0
-  return props.achievements.filter(a => a.completed).length
+const heroAchievements = computed(() => {
+  return achievementStore.achievements.map(ach => {
+    const rec = recordStore.getRecord(props.hero.heroId, ach.id)
+    return { ...ach, completed: rec.completed, completedAt: rec.completedAt }
+  })
 })
 
+const completedCount = computed(() => heroAchievements.value.filter(a => a.completed).length)
+const totalCount = computed(() => achievementStore.achievements.length)
+
 const progressPercent = computed(() => {
-  if (!props.achievements || props.achievements.length === 0) return 0
-  return (completedCount.value / props.achievements.length) * 100
+  if (totalCount.value === 0) return 0
+  return (completedCount.value / totalCount.value) * 100
 })
 
 function formatDate(dateStr) {
