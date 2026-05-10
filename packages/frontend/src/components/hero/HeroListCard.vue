@@ -67,8 +67,9 @@
         </div>
       </div>
 
-      <!-- 展开/折叠按钮 -->
+      <!-- 展开/折叠按钮：英雄维度下显示 -->
       <button
+        v-if="completed === undefined"
         class="shrink-0 p-2 rounded-lg text-lol-muted hover:text-lol-text hover:bg-lol-border/30 transition-colors"
         @click.stop="expanded = !expanded"
       >
