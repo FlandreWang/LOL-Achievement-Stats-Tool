@@ -5,7 +5,7 @@ export function useLayoutPreference(key, defaultValue = 'grid') {
 
   onMounted(() => {
     const saved = localStorage.getItem(key)
-    if (saved === 'grid' || saved === 'list') {
+    if (saved !== null) {
       layout.value = saved
     }
   })

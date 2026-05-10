@@ -116,17 +116,23 @@ const sortedHeroes = computed(() => {
     case 'default':
       return heroes.sort((a, b) => Number(a.heroId) - Number(b.heroId))
 
+    case 'pinyin-asc':
+      return heroes.sort((a, b) => getPinyin(a.title).localeCompare(getPinyin(b.title)))
+
+    case 'pinyin-desc':
+      return heroes.sort((a, b) => getPinyin(b.title).localeCompare(getPinyin(a.title)))
+
     case 'alias-asc':
       return heroes.sort((a, b) => a.alias.localeCompare(b.alias))
 
     case 'alias-desc':
       return heroes.sort((a, b) => b.alias.localeCompare(a.alias))
 
-    case 'pinyin-asc':
-      return heroes.sort((a, b) => getPinyin(a.name).localeCompare(getPinyin(b.name)))
+    case 'name-asc':
+      return heroes.sort((a, b) => a.name.localeCompare(b.name))
 
-    case 'pinyin-desc':
-      return heroes.sort((a, b) => getPinyin(b.name).localeCompare(getPinyin(a.name)))
+    case 'name-desc':
+      return heroes.sort((a, b) => b.name.localeCompare(a.name))
 
     case 'achievements-desc':
       return heroes.sort((a, b) => getAchievementCount(b.heroId) - getAchievementCount(a.heroId))

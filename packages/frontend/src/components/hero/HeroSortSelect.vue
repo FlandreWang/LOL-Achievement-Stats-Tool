@@ -54,10 +54,12 @@ const dropdownRef = ref(null)
 
 const sortOptions = [
   { value: 'default', label: '默认排序' },
+  { value: 'pinyin-asc', label: '中文名 A→Z' },
+  { value: 'pinyin-desc', label: '中文名 Z→A' },
   { value: 'alias-asc', label: '英文名 A→Z' },
   { value: 'alias-desc', label: '英文名 Z→A' },
-  { value: 'pinyin-asc', label: '拼音名 A→Z' },
-  { value: 'pinyin-desc', label: '拼音名 Z→A' },
+  { value: 'name-asc', label: '称号 A→Z' },
+  { value: 'name-desc', label: '称号 Z→A' },
   { value: 'achievements-desc', label: '成就多→少' },
   { value: 'achievements-asc', label: '成就少→多' },
 ]
