@@ -28,6 +28,8 @@
         <div class="flex-1">
           <HeroSearch v-model="keyword" />
         </div>
+        <!-- 排序选择器 -->
+        <HeroSortSelect v-model="sortBy" />
         <!-- 布局切换按钮 -->
         <div class="flex items-center gap-1 bg-lol-card border border-lol-border rounded-lg p-1">
           <button
@@ -66,9 +68,11 @@ import { useHeroStore } from '../stores/hero'
 import { useAchievementStore } from '../stores/achievement'
 import { useRecordStore } from '../stores/record'
 import { Grid3X3, List } from 'lucide-vue-next'
+import { pinyin } from 'pinyin-pro'
 import HeroGrid from '../components/hero/HeroGrid.vue'
 import HeroList from '../components/hero/HeroList.vue'
 import HeroSearch from '../components/hero/HeroSearch.vue'
+import HeroSortSelect from '../components/hero/HeroSortSelect.vue'
 import AchievementView from '../components/achievement/AchievementView.vue'
 import { createSearchEngine } from '../utils/search'
 import { useLayoutPreference } from '../composables/useLayoutPreference'
@@ -79,7 +83,24 @@ const recordStore = useRecordStore()
 const viewMode = ref('hero')
 const keyword = ref('')
 const heroLayout = useLayoutPreference('lol_hero_layout', 'grid')
+const sortBy = useLayoutPreference('lol_hero_sort', 'default')
 let searchEngine = null
+
+// 拼音缓存
+const pinyinCache = new Map()
+
+function getPinyin(text) {
+  if (!pinyinCache.has(text)) {
+    pinyinCache.set(text, pinyin(text, { toneType: 'none' }).toLowerCase())
+  }
+  return pinyinCache.get(text)
+}
+
+// 获取英雄成就完成数
+function getAchievementCount(heroId) {
+  const heroRecs = recordStore.records[heroId] || {}
+  return Object.values(heroRecs).filter(r => r.completed).length
+}
 
 watch(() => heroStore.heroes, (heroes) => {
   if (heroes.length > 0) {
@@ -87,10 +108,43 @@ watch(() => heroStore.heroes, (heroes) => {
   }
 }, { immediate: true })
 
+// 排序后的英雄列表
+const sortedHeroes = computed(() => {
+  const heroes = [...heroStore.heroes]
+
+  switch (sortBy.value) {
+    case 'default':
+      return heroes.sort((a, b) => Number(a.heroId) - Number(b.heroId))
+
+    case 'alias-asc':
+      return heroes.sort((a, b) => a.alias.localeCompare(b.alias))
+
+    case 'alias-desc':
+      return heroes.sort((a, b) => b.alias.localeCompare(a.alias))
+
+    case 'pinyin-asc':
+      return heroes.sort((a, b) => getPinyin(a.name).localeCompare(getPinyin(b.name)))
+
+    case 'pinyin-desc':
+      return heroes.sort((a, b) => getPinyin(b.name).localeCompare(getPinyin(a.name)))
+
+    case 'achievements-desc':
+      return heroes.sort((a, b) => getAchievementCount(b.heroId) - getAchievementCount(a.heroId))
+
+    case 'achievements-asc':
+      return heroes.sort((a, b) => getAchievementCount(a.heroId) - getAchievementCount(b.heroId))
+
+    default:
+      return heroes
+  }
+})
+
 const filteredHeroes = computed(() => {
-  if (!keyword.value.trim()) return heroStore.heroes
-  if (!searchEngine) return heroStore.heroes
-  return searchEngine.search(keyword.value).map(r => r.item)
+  if (!keyword.value.trim()) return sortedHeroes.value
+  if (!searchEngine) return sortedHeroes.value
+  const results = searchEngine.search(keyword.value).map(r => r.item.heroId)
+  const resultSet = new Set(results)
+  return sortedHeroes.value.filter(hero => resultSet.has(hero.heroId))
 })
 
 onMounted(() => {
