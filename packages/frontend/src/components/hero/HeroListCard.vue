@@ -43,18 +43,26 @@
         <div v-if="!compact" class="text-xs text-lol-muted truncate mt-0.5">{{ hero.alias }}</div>
       </RouterLink>
 
-      <!-- 成就维度：完成状态和时间 -->
+      <!-- 成就维度：完成状态、时间、操作 -->
       <div v-if="completed !== undefined" class="shrink-0 flex items-center gap-2">
-        <button
-          class="text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer"
-          :class="completed ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-lol-border/30 text-lol-muted hover:bg-lol-border/50'"
-          @click.stop="toggleCompletion"
-        >
-          {{ completed ? '已完成' : '未完成' }}
-        </button>
         <span v-if="completedAt" class="text-xs text-lol-muted whitespace-nowrap">
           {{ formatDate(completedAt) }}
         </span>
+        <span
+          class="text-xs px-2 py-0.5 rounded-full"
+          :class="completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/15 text-red-400'"
+        >
+          {{ completed ? '已完成' : '未完成' }}
+        </span>
+        <button
+          class="p-1 rounded transition-colors cursor-pointer"
+          :class="completed ? 'text-red-400 hover:bg-red-500/15' : 'text-emerald-400 hover:bg-emerald-500/15'"
+          :title="completed ? '标记为未完成' : '标记为已完成'"
+          @click.stop="toggleCompletion"
+        >
+          <X v-if="completed" class="w-4 h-4" />
+          <Check v-else class="w-4 h-4" />
+        </button>
       </div>
 
       <!-- 总体成就进度条：英雄维度下显示 -->
@@ -119,7 +127,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ChevronDown, CheckCircle2, Circle } from 'lucide-vue-next'
+import { ChevronDown, CheckCircle2, Circle, Check, X } from 'lucide-vue-next'
 import { useRecordStore } from '../../stores/record'
 import { useAchievementStore } from '../../stores/achievement'
 
