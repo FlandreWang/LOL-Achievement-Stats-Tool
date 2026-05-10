@@ -67,9 +67,8 @@
         </div>
       </div>
 
-      <!-- 展开/折叠按钮：英雄维度下显示 -->
+      <!-- 展开/折叠按钮 -->
       <button
-        v-if="completed === undefined"
         class="shrink-0 p-2 rounded-lg text-lol-muted hover:text-lol-text hover:bg-lol-border/30 transition-colors"
         @click.stop="expanded = !expanded"
       >
@@ -108,6 +107,15 @@
               </span>
             </div>
           </template>
+          <!-- 成就维度：显示完成时间 -->
+          <div v-if="completed !== undefined" class="flex items-center gap-2 py-1">
+            <Clock v-if="completed" class="w-4 h-4 text-lol-muted shrink-0" />
+            <CircleDot v-else class="w-4 h-4 text-lol-muted/40 shrink-0" />
+            <span v-if="completed && completedAt" class="text-sm text-lol-text">
+              {{ formatDateTime(completedAt) }}
+            </span>
+            <span v-else class="text-sm text-lol-muted">尚未完成</span>
+          </div>
         </div>
       </div>
     </Transition>
@@ -117,7 +125,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ChevronDown, CheckCircle2, Circle } from 'lucide-vue-next'
+import { ChevronDown, CheckCircle2, Circle, Clock, CircleDot } from 'lucide-vue-next'
 import { useRecordStore } from '../../stores/record'
 import { useAchievementStore } from '../../stores/achievement'
 
@@ -154,6 +162,17 @@ function formatDate(dateStr) {
   const month = date.getMonth() + 1
   const day = date.getDate()
   return `${month}月${day}日`
+}
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const y = date.getFullYear()
+  const m = date.getMonth() + 1
+  const d = date.getDate()
+  const h = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${y}年${m}月${d}日 ${h}:${min}`
 }
 
 function onImgError(e) {
