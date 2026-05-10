@@ -170,7 +170,7 @@ function particleStyle(index) {
   border-radius: 50%;
   overflow: hidden;
   background: var(--lol-card);
-  border: 1px solid color-mix(in srgb, var(--lol-primary) 30%, transparent);
+  border: 1px solid rgba(90, 130, 230, 0.3);
   box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -187,7 +187,7 @@ function particleStyle(index) {
   right: 0;
   bottom: 0;
   transition: top 0.8s ease;
-  background: color-mix(in srgb, var(--lol-primary) 35%, transparent);
+  background: rgba(90, 130, 230, 0.35);
 }
 
 .liquid-wave {
@@ -200,15 +200,15 @@ function particleStyle(index) {
 }
 
 .liquid-wave path {
-  fill: color-mix(in srgb, var(--lol-primary) 35%, transparent);
+  fill: rgba(90, 130, 230, 0.35);
 }
 
 .completed .liquid-fill {
-  background: color-mix(in srgb, var(--lol-gold) 40%, transparent);
+  background: rgba(200, 170, 90, 0.4);
 }
 
 .completed .liquid-wave path {
-  fill: color-mix(in srgb, var(--lol-gold) 40%, transparent);
+  fill: rgba(200, 170, 90, 0.4);
 }
 
 @keyframes waveFlow {
