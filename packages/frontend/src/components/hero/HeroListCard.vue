@@ -54,11 +54,29 @@
         >
           {{ completed ? '已完成' : '未完成' }}
         </span>
+        <!-- 二次确认状态 -->
+        <template v-if="confirming">
+          <span class="text-xs text-lol-muted">取消完成？</span>
+          <button
+            class="p-1 rounded text-emerald-400 hover:bg-emerald-500/15 transition-colors cursor-pointer"
+            @click.stop="confirmToggle"
+          >
+            <Check class="w-4 h-4" />
+          </button>
+          <button
+            class="p-1 rounded text-lol-muted hover:bg-lol-border/30 transition-colors cursor-pointer"
+            @click.stop="confirming = false"
+          >
+            <X class="w-4 h-4" />
+          </button>
+        </template>
+        <!-- 正常状态 -->
         <button
+          v-else
           class="p-1 rounded transition-colors cursor-pointer"
           :class="completed ? 'text-red-400 hover:bg-red-500/15' : 'text-emerald-400 hover:bg-emerald-500/15'"
           :title="completed ? '标记为未完成' : '标记为已完成'"
-          @click.stop="toggleCompletion"
+          @click.stop="onToggleClick"
         >
           <X v-if="completed" class="w-4 h-4" />
           <Check v-else class="w-4 h-4" />
@@ -139,16 +157,25 @@ const props = defineProps({
   compact: { type: Boolean, default: false },
 })
 
-async function toggleCompletion() {
-  if (!props.achievementId) return
-  if (props.completed && !confirm('确认将该成就标记为未完成？')) return
-  await recordStore.toggle(props.hero.heroId, props.achievementId)
-}
-
 const recordStore = useRecordStore()
 const achievementStore = useAchievementStore()
 
 const expanded = ref(false)
+const confirming = ref(false)
+
+function onToggleClick() {
+  if (!props.achievementId) return
+  if (props.completed) {
+    confirming.value = true
+  } else {
+    recordStore.toggle(props.hero.heroId, props.achievementId)
+  }
+}
+
+async function confirmToggle() {
+  confirming.value = false
+  await recordStore.toggle(props.hero.heroId, props.achievementId)
+}
 
 const heroAchievements = computed(() => {
   return achievementStore.achievements.map(ach => {
