@@ -31,6 +31,7 @@
         :completed="achProgress.completed"
         :total="achProgress.total"
         :achievement-name="selectedAchName"
+        :description="selectedAchDesc"
       />
 
       <!-- 搜索框 + 布局切换 -->
@@ -113,6 +114,12 @@ const achievements = computed(() => achievementStore.achievements)
 const selectedAchName = computed(() => {
   const ach = achievements.value.find(a => a.id === selectedAchId.value)
   return ach ? ach.name : ''
+})
+
+// 选中成就描述
+const selectedAchDesc = computed(() => {
+  const ach = achievements.value.find(a => a.id === selectedAchId.value)
+  return ach ? ach.description || '' : ''
 })
 
 // 默认选中第一个成就

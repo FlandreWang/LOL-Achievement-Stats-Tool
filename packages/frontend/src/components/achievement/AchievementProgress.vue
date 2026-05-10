@@ -32,12 +32,12 @@
     <!-- 右侧：详细信息 -->
     <div class="progress-info">
       <div class="progress-title">{{ achievementName }}</div>
+      <div v-if="description" class="progress-desc">{{ description }}</div>
       <div class="progress-stats">
         <span class="progress-completed">{{ completed }}</span>
         <span class="progress-separator">/</span>
         <span class="progress-total">{{ total }}</span>
       </div>
-      <div class="progress-label">已完成</div>
     </div>
 
     <!-- 完成时的粒子效果 -->
@@ -54,6 +54,7 @@ const props = defineProps({
   completed: { type: Number, default: 0 },
   total: { type: Number, default: 0 },
   achievementName: { type: String, default: '' },
+  description: { type: String, default: '' },
 })
 
 const ringSize = 100
@@ -247,9 +248,14 @@ function particleStyle(index) {
   font-variant-numeric: tabular-nums;
 }
 
-.progress-label {
+.progress-desc {
   font-size: 0.75rem;
   color: var(--color-muted, #8B9DAF);
+  margin-bottom: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* 粒子效果 */
