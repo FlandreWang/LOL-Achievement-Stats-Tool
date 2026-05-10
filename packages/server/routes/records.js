@@ -61,6 +61,33 @@ router.post('/toggle', async (req, res) => {
   }
 })
 
+// 批量导入记录（用于 localStorage 数据迁移）
+router.post('/import', async (req, res) => {
+  try {
+    const { records } = req.body
+    if (!records || typeof records !== 'object') {
+      return res.status(400).json({ code: -1, message: 'records 必须是对象' })
+    }
+    let imported = 0
+    for (const [heroId, achMap] of Object.entries(records)) {
+      for (const [achievementId, rec] of Object.entries(achMap)) {
+        if (!rec.completed) continue
+        await db.execute(
+          `INSERT INTO records (hero_id, achievement_id, completed, completed_at, note)
+           VALUES (?, ?, TRUE, ?, ?)
+           ON DUPLICATE KEY UPDATE completed = TRUE, completed_at = VALUES(completed_at), note = VALUES(note)`,
+          [heroId, achievementId, rec.completedAt || new Date().toISOString(), rec.note || '']
+        )
+        imported++
+      }
+    }
+    res.json({ code: 0, data: { imported } })
+  } catch (error) {
+    console.error('批量导入记录失败:', error)
+    res.status(500).json({ code: -1, message: error.message })
+  }
+})
+
 // 更新备注
 router.put('/note', async (req, res) => {
   try {

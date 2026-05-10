@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { testConnection } from './config/db.js'
+import db, { testConnection } from './config/db.js'
 import heroesRouter from './routes/heroes.js'
 import achievementsRouter from './routes/achievements.js'
 import recordsRouter from './routes/records.js'
@@ -19,6 +19,34 @@ app.use(express.json())
 app.use('/api/heroes', heroesRouter)
 app.use('/api/achievements', achievementsRouter)
 app.use('/api/records', recordsRouter)
+
+// 数据导出（从 MySQL 导出全部数据）
+app.get('/api/export', async (req, res) => {
+  try {
+    const [achievements] = await db.execute('SELECT * FROM achievements ORDER BY created_at DESC')
+    const [rows] = await db.execute('SELECT * FROM records')
+    const records = {}
+    for (const row of rows) {
+      if (!records[row.hero_id]) records[row.hero_id] = {}
+      records[row.hero_id][row.achievement_id] = {
+        completed: row.completed,
+        completedAt: row.completed_at,
+        note: row.note || '',
+      }
+    }
+    res.json({
+      code: 0,
+      data: {
+        achievements,
+        records,
+        exportedAt: new Date().toISOString(),
+      },
+    })
+  } catch (error) {
+    console.error('导出数据失败:', error)
+    res.status(500).json({ code: -1, message: error.message })
+  }
+})
 
 // 健康检查
 app.get('/api/health', async (req, res) => {

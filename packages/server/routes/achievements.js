@@ -44,6 +44,29 @@ router.put('/:id', async (req, res) => {
   }
 })
 
+// 批量导入成就（用于 localStorage 数据迁移）
+router.post('/import', async (req, res) => {
+  try {
+    const { achievements } = req.body
+    if (!Array.isArray(achievements)) {
+      return res.status(400).json({ code: -1, message: 'achievements 必须是数组' })
+    }
+    let imported = 0
+    for (const ach of achievements) {
+      if (!ach.id || !ach.name) continue
+      await db.execute(
+        'INSERT INTO achievements (id, name, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description)',
+        [ach.id, ach.name, ach.description || '']
+      )
+      imported++
+    }
+    res.json({ code: 0, data: { imported } })
+  } catch (error) {
+    console.error('批量导入成就失败:', error)
+    res.status(500).json({ code: -1, message: error.message })
+  }
+})
+
 // 删除成就
 router.delete('/:id', async (req, res) => {
   try {

@@ -29,6 +29,7 @@ export const achievementApi = {
   create: (data) => request('/achievements', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/achievements/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/achievements/${id}`, { method: 'DELETE' }),
+  import: (achievements) => request('/achievements/import', { method: 'POST', body: JSON.stringify({ achievements }) }),
 }
 
 // 成就记录 API
@@ -37,4 +38,10 @@ export const recordApi = {
   getByHeroId: (heroId) => request(`/records/${heroId}`),
   toggle: (heroId, achievementId) => request('/records/toggle', { method: 'POST', body: JSON.stringify({ heroId, achievementId }) }),
   updateNote: (heroId, achievementId, note) => request('/records/note', { method: 'PUT', body: JSON.stringify({ heroId, achievementId, note }) }),
+  import: (records) => request('/records/import', { method: 'POST', body: JSON.stringify({ records }) }),
+}
+
+// 数据导出 API
+export const dataApi = {
+  export: () => request('/export'),
 }
