@@ -34,10 +34,48 @@
         :description="selectedAchDesc"
       />
 
-      <!-- 搜索框 + 布局切换 -->
+      <!-- 搜索框 + 排序 + 布局切换 -->
       <div class="flex items-center gap-3 mb-4">
         <div class="flex-1">
           <HeroSearch v-model="keyword" />
+        </div>
+        <!-- 排序下拉 -->
+        <div class="relative" ref="sortDropdownRef">
+          <button
+            class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-lol-card border border-lol-border rounded-lg text-lol-muted hover:text-lol-text hover:border-lol-primary transition-colors"
+            @click="sortOpen = !sortOpen"
+          >
+            <ArrowUpDown class="w-4 h-4" />
+            <span>{{ currentSortLabel }}</span>
+            <ChevronDown class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': sortOpen }" />
+          </button>
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 scale-95 -translate-y-1"
+            enter-to-class="opacity-100 scale-100 translate-y-0"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 -translate-y-1"
+          >
+            <div
+              v-if="sortOpen"
+              class="absolute right-0 mt-1 w-40 bg-lol-card border border-lol-border rounded-lg shadow-lg overflow-hidden z-50"
+            >
+              <div class="py-1">
+                <button
+                  v-for="opt in achSortOptions"
+                  :key="opt.value"
+                  class="w-full px-3 py-2 text-sm text-left hover:bg-lol-primary/10 transition-colors flex items-center gap-2"
+                  :class="achSort === opt.value ? 'text-lol-primary' : 'text-lol-text'"
+                  @click="achSort = opt.value; sortOpen = false"
+                >
+                  <Check v-if="achSort === opt.value" class="w-4 h-4 shrink-0" />
+                  <span v-else class="w-4 h-4 shrink-0" />
+                  <span>{{ opt.label }}</span>
+                </button>
+              </div>
+            </div>
+          </Transition>
         </div>
         <div class="flex items-center gap-1 bg-lol-card border border-lol-border rounded-lg p-1">
           <button
@@ -87,8 +125,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { Grid3X3, List } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { Grid3X3, List, ArrowUpDown, ChevronDown, Check } from 'lucide-vue-next'
+import { pinyin } from 'pinyin-pro'
 import { useAchievementStore } from '../../stores/achievement'
 import { useRecordStore } from '../../stores/record'
 import { useHeroStore } from '../../stores/hero'
@@ -107,7 +146,35 @@ const heroStore = useHeroStore()
 const selectedAchId = ref('')
 const keyword = ref('')
 const achLayout = useLayoutPreference('lol_achievement_layout', 'list')
+const achSort = useLayoutPreference('lol_achievement_sort', 'incomplete-first')
+const sortOpen = ref(false)
 let searchEngine = null
+
+// 排序选项
+const achSortOptions = [
+  { value: 'incomplete-first', label: '未完成优先' },
+  { value: 'completed-first', label: '已完成优先' },
+  { value: 'pinyin-asc', label: '中文名 A→Z' },
+  { value: 'pinyin-desc', label: '中文名 Z→A' },
+  { value: 'alias-asc', label: '英文名 A→Z' },
+  { value: 'alias-desc', label: '英文名 Z→A' },
+  { value: 'name-asc', label: '称号 A→Z' },
+  { value: 'name-desc', label: '称号 Z→A' },
+]
+
+const currentSortLabel = computed(() => {
+  const opt = achSortOptions.find(o => o.value === achSort.value)
+  return opt ? opt.label : '排序'
+})
+
+// 拼音缓存
+const pinyinCache = new Map()
+function getPinyin(text) {
+  if (!pinyinCache.has(text)) {
+    pinyinCache.set(text, pinyin(text, { toneType: 'none' }).toLowerCase())
+  }
+  return pinyinCache.get(text)
+}
 
 const achievements = computed(() => achievementStore.achievements)
 
@@ -140,21 +207,39 @@ watch(() => heroStore.heroes, (heroes) => {
   }
 }, { immediate: true })
 
-// 英雄完成状态列表（排序：已完成在前）
+// 英雄完成状态列表（带排序）
 const heroStatusList = computed(() => {
   if (!selectedAchId.value || heroStore.heroes.length === 0) return []
   const achId = selectedAchId.value
-  return heroStore.heroes.map(hero => {
+  const list = heroStore.heroes.map(hero => {
     const record = recordStore.getRecord(hero.heroId, achId)
     return {
       hero,
       completed: record.completed,
       completedAt: record.completedAt || '',
     }
-  }).sort((a, b) => {
-    if (a.completed === b.completed) return 0
-    return a.completed ? -1 : 1
   })
+
+  switch (achSort.value) {
+    case 'completed-first':
+      return list.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1))
+    case 'incomplete-first':
+      return list.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1))
+    case 'pinyin-asc':
+      return list.sort((a, b) => getPinyin(a.hero.title).localeCompare(getPinyin(b.hero.title)))
+    case 'pinyin-desc':
+      return list.sort((a, b) => getPinyin(b.hero.title).localeCompare(getPinyin(a.hero.title)))
+    case 'alias-asc':
+      return list.sort((a, b) => a.hero.alias.localeCompare(b.hero.alias))
+    case 'alias-desc':
+      return list.sort((a, b) => b.hero.alias.localeCompare(a.hero.alias))
+    case 'name-asc':
+      return list.sort((a, b) => a.hero.name.localeCompare(b.hero.name))
+    case 'name-desc':
+      return list.sort((a, b) => b.hero.name.localeCompare(a.hero.name))
+    default:
+      return list
+  }
 })
 
 // 搜索过滤
@@ -165,6 +250,16 @@ const filteredHeroes = computed(() => {
   const resultSet = new Set(results)
   return heroStatusList.value.filter(item => resultSet.has(item.hero.heroId))
 })
+
+// 排序下拉点击外部关闭
+const sortDropdownRef = ref(null)
+function handleSortOutside(e) {
+  if (sortDropdownRef.value && !sortDropdownRef.value.contains(e.target)) {
+    sortOpen.value = false
+  }
+}
+onMounted(() => document.addEventListener('click', handleSortOutside))
+onUnmounted(() => document.removeEventListener('click', handleSortOutside))
 
 // 成就进度
 const achProgress = computed(() => {
