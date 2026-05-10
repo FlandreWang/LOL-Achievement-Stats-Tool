@@ -3,15 +3,6 @@
     <!-- 左侧：进度环 -->
     <div class="progress-ring-wrapper">
       <svg class="progress-ring" :width="ringSize" :height="ringSize" viewBox="0 0 100 100">
-        <!-- 背景环 -->
-        <circle
-          class="progress-ring-bg"
-          cx="50"
-          cy="50"
-          r="42"
-          fill="none"
-          :stroke-width="strokeWidth"
-        />
         <!-- 进度环 -->
         <circle
           class="progress-ring-fill"
@@ -122,11 +113,6 @@ function particleStyle(index) {
 
 .progress-ring {
   display: block;
-}
-
-.progress-ring-bg {
-  stroke: var(--color-border, #E0E0E0);
-  transition: stroke 0.3s ease;
 }
 
 .progress-ring-fill {
