@@ -41,19 +41,20 @@
           </template>
         </div>
         <div v-if="!compact" class="text-xs text-lol-muted truncate mt-0.5">{{ hero.alias }}</div>
-        <!-- 成就tab：显示完成状态 -->
-        <div v-if="completed !== undefined" :class="compact ? 'mt-0.5' : 'mt-1'">
-          <span
-            class="text-xs px-1.5 py-0.5 rounded"
-            :class="completed ? 'bg-lol-gold/20 text-lol-gold' : 'bg-lol-border/30 text-lol-muted'"
-          >
-            {{ completed ? '已完成' : '未完成' }}
-          </span>
-          <span v-if="completedAt && !compact" class="text-xs text-lol-muted ml-1.5">
-            {{ formatDate(completedAt) }}
-          </span>
-        </div>
       </RouterLink>
+
+      <!-- 成就维度：完成状态和时间 -->
+      <div v-if="completed !== undefined" class="shrink-0 text-right">
+        <span
+          class="text-xs px-2 py-0.5 rounded-full"
+          :class="completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-lol-border/30 text-lol-muted'"
+        >
+          {{ completed ? '已完成' : '未完成' }}
+        </span>
+        <div v-if="completedAt" class="text-xs text-lol-muted mt-1">
+          {{ formatDate(completedAt) }}
+        </div>
+      </div>
 
       <!-- 总体成就进度条：英雄维度下显示 -->
       <div v-if="completed === undefined && !compact" class="shrink-0 w-24 text-right">
@@ -67,8 +68,9 @@
         </div>
       </div>
 
-      <!-- 展开/折叠按钮 -->
+      <!-- 展开/折叠按钮：英雄维度下显示 -->
       <button
+        v-if="completed === undefined"
         class="shrink-0 p-2 rounded-lg text-lol-muted hover:text-lol-text hover:bg-lol-border/30 transition-colors"
         @click.stop="expanded = !expanded"
       >
@@ -107,15 +109,6 @@
               </span>
             </div>
           </template>
-          <!-- 成就维度：显示完成时间 -->
-          <div v-if="completed !== undefined" class="flex items-center gap-2 py-1">
-            <Clock v-if="completed" class="w-4 h-4 text-lol-muted shrink-0" />
-            <CircleDot v-else class="w-4 h-4 text-lol-muted/40 shrink-0" />
-            <span v-if="completed && completedAt" class="text-sm text-lol-text">
-              {{ formatDateTime(completedAt) }}
-            </span>
-            <span v-else class="text-sm text-lol-muted">尚未完成</span>
-          </div>
         </div>
       </div>
     </Transition>
@@ -125,7 +118,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ChevronDown, CheckCircle2, Circle, Clock, CircleDot } from 'lucide-vue-next'
+import { ChevronDown, CheckCircle2, Circle } from 'lucide-vue-next'
 import { useRecordStore } from '../../stores/record'
 import { useAchievementStore } from '../../stores/achievement'
 
@@ -158,21 +151,8 @@ const progressPercent = computed(() => {
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  return `${month}月${day}日`
-}
-
-function formatDateTime(dateStr) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const y = date.getFullYear()
-  const m = date.getMonth() + 1
-  const d = date.getDate()
-  const h = String(date.getHours()).padStart(2, '0')
-  const min = String(date.getMinutes()).padStart(2, '0')
-  return `${y}年${m}月${d}日 ${h}:${min}`
+  const d = new Date(dateStr)
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
 }
 
 function onImgError(e) {
