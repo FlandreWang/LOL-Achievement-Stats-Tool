@@ -1,56 +1,54 @@
 @echo off
-chcp 65001 >nul
+chcp 65001 > NUL
 echo ========================================
-echo   LOL 英雄成就追踪器 - 重启服务
+echo   LOL Hero Achievement Tracker - Restarting
 echo ========================================
 echo.
 
-:: 停止现有服务
-echo [1/4] 停止现有服务...
-taskkill /F /FI "WINDOWTITLE eq LOL*" >nul 2>&1
-timeout /t 1 /nobreak >nul
-echo       完成
+echo [1/4] Stopping existing services...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3001.*LISTENING"') do taskkill /F /PID %%a > /dev/null 2>&1
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":5173.*LISTENING"') do taskkill /F /PID %%a > /dev/null 2>&1
+timeout /t 1 /nobreak > NUL
+echo       Done
 echo.
 
-:: 检查 MySQL 状态
-echo [2/4] 检查 MySQL 服务...
-sc query mysql | findstr "RUNNING" >nul 2>&1
+echo [2/4] Checking MySQL service...
+sc query mysql | findstr "RUNNING" > NUL
 if %errorlevel% equ 0 (
-    echo       MySQL 服务已在运行
+    echo       MySQL is already running
 ) else (
-    echo       MySQL 服务未运行，正在启动...
-    net start mysql >nul 2>&1
+    echo       Starting MySQL service...
+    net start mysql
     if %errorlevel% equ 0 (
-        echo       MySQL 服务启动成功
+        echo       MySQL started successfully
     ) else (
-        echo       MySQL 服务启动失败，请以管理员权限运行此脚本
+        echo       Failed to start MySQL. Run as Administrator.
         pause
         exit /b 1
     )
 )
 echo.
 
-:: 启动后端服务
-echo [3/4] 启动后端服务...
-start "LOL Server" cmd /c "cd /d "%~dp0\..\packages\server" && node index.js"
-echo       后端服务启动中... (端口: 3001)
-timeout /t 2 /nobreak >nul
+echo [3/4] Starting backend server...
+cd /d %~dp0\..\packages\server
+start "LOL Server" cmd /k "node index.js"
+echo       Backend starting on port 3001...
+timeout /t 2 /nobreak > NUL
 echo.
 
-:: 启动前端服务
-echo [4/4] 启动前端服务...
-cd /d "%~dp0\..\.."
-start "LOL Frontend" cmd /c "cd /d "%~dp0\..\.." && pnpm dev"
-echo       前端服务启动中...
+echo [4/4] Starting frontend server...
+cd /d %~dp0\..
+start "LOL Frontend" cmd /k "pnpm dev"
+echo       Frontend starting on port 5173...
 echo.
 
 echo ========================================
-echo   服务重启完成！
+echo   All services restarted!
 echo.
-echo   后端服务: http://localhost:3001
-echo   前端服务: http://localhost:5173
+echo   Backend:  http://localhost:3001
+echo   Frontend: http://localhost:5173
 echo.
-echo   关闭此窗口不会停止服务
-echo   如需停止服务，请运行 stop.bat
+echo   Close this window to keep services running
+echo   Run stop.bat to stop all services
 echo ========================================
 pause

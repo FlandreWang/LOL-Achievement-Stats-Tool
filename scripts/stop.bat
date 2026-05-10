@@ -1,40 +1,34 @@
 @echo off
-chcp 65001 >nul
+chcp 65001 > NUL
 echo ========================================
-echo   LOL 英雄成就追踪器 - 停止服务
+echo   LOL Hero Achievement Tracker - Stopping
 echo ========================================
 echo.
 
-:: 停止 Node.js 进程（后端和前端）
-echo [1/2] 停止 Node.js 服务...
-tasklist /FI "IMAGENAME eq node.exe" /FI "WINDOWTITLE eq LOL*" 2>nul | findstr "node.exe" >nul 2>&1
-if %errorlevel% equ 0 (
-    taskkill /F /FI "WINDOWTITLE eq LOL*" >nul 2>&1
-    echo       Node.js 服务已停止
-) else (
-    echo       未发现运行中的 Node.js 服务
-)
+echo [1/2] Stopping services...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3001.*LISTENING"') do taskkill /F /PID %%a > /dev/null 2>&1
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":5173.*LISTENING"') do taskkill /F /PID %%a > /dev/null 2>&1
+echo       Services stopped
 echo.
 
-:: 询问是否停止 MySQL
-echo [2/2] MySQL 服务管理
-echo       当前 MySQL 服务状态：
+echo [2/2] MySQL Service Management
+echo       Current MySQL service status:
 sc query mysql | findstr "STATE"
 echo.
-set /p stopMySQL="是否停止 MySQL 服务？(y/N): "
+set /p stopMySQL="Stop MySQL service? (y/N): "
 if /i "%stopMySQL%"=="y" (
-    net stop mysql >nul 2>&1
+    net stop mysql
     if %errorlevel% equ 0 (
-        echo       MySQL 服务已停止
+        echo       MySQL service stopped
     ) else (
-        echo       MySQL 服务停止失败，请以管理员权限运行此脚本
+        echo       Failed to stop MySQL. Run as Administrator.
     )
 ) else (
-    echo       MySQL 服务保持运行
+    echo       MySQL service kept running
 )
 echo.
 
 echo ========================================
-echo   服务停止完成！
+echo   All services stopped!
 echo ========================================
 pause
