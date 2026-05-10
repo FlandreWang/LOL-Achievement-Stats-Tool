@@ -19,9 +19,18 @@
       <!-- 中心：液面球体 + 数字 -->
       <div class="progress-ring-content">
         <div class="liquid-ball" :class="{ completed: isCompleted }">
-          <div class="liquid-fill" :style="{ top: `${liquidOffset}%` }">
-            <svg class="liquid-wave" viewBox="0 0 200 20" preserveAspectRatio="none">
-              <path d="M0,10 C25,0 25,20 50,10 C75,0 75,20 100,10 C125,0 125,20 150,10 C175,0 175,20 200,10 L200,20 L0,20 Z" />
+          <div class="liquid-fill" :style="{ top: `${liquidOffset}%`, background: fillGradient }">
+            <svg class="liquid-wave" viewBox="0 0 400 20" preserveAspectRatio="none">
+              <path
+                :fill="waveColor"
+                d="M0,10 C12,4 18,16 30,10 C42,4 48,16 60,10 C72,4 78,16 90,10 C102,4 108,16 120,10 C132,4 138,16 150,10 C162,4 168,16 180,10 C192,4 198,16 210,10 C222,4 228,16 240,10 C252,4 258,16 270,10 C282,4 288,16 300,10 C312,4 318,16 330,10 C342,4 348,16 360,10 C372,4 378,16 390,10 L400,10 L400,20 L0,20 Z"
+              />
+            </svg>
+            <svg class="liquid-wave liquid-wave-back" viewBox="0 0 400 20" preserveAspectRatio="none">
+              <path
+                :fill="waveBackColor"
+                d="M0,12 C15,6 20,18 35,12 C50,6 55,18 70,12 C85,6 90,18 105,12 C120,6 125,18 140,12 C155,6 160,18 175,12 C190,6 195,18 210,12 C225,6 230,18 245,12 C260,6 265,18 280,12 C295,6 300,18 315,12 C330,6 335,18 350,12 C365,6 370,18 385,12 L400,12 L400,20 L0,20 Z"
+              />
             </svg>
           </div>
         </div>
@@ -76,6 +85,51 @@ const strokeDashoffset = computed(() => {
 const liquidOffset = computed(() => 100 - percent.value)
 
 const isCompleted = computed(() => props.total > 0 && props.completed === props.total)
+
+// 根据百分比动态计算渐变色
+const colorStops = [
+  { pct: 0,   bottom: [200, 60, 60],   top: [240, 100, 100] },  // 红
+  { pct: 30,  bottom: [220, 140, 50],  top: [250, 180, 90] },   // 橙
+  { pct: 60,  bottom: [60, 100, 210],  top: [110, 150, 240] },  // 蓝
+  { pct: 90,  bottom: [50, 180, 150],  top: [90, 220, 190] },   // 青绿
+  { pct: 100, bottom: [180, 150, 70],  top: [220, 190, 110] },  // 金
+]
+
+function lerpColor(c1, c2, t) {
+  return c1.map((v, i) => Math.round(v + (c2[i] - v) * t))
+}
+
+function getColor(pct) {
+  for (let i = 1; i < colorStops.length; i++) {
+    if (pct <= colorStops[i].pct) {
+      const prev = colorStops[i - 1]
+      const t = (pct - prev.pct) / (colorStops[i].pct - prev.pct)
+      return {
+        bottom: lerpColor(prev.bottom, colorStops[i].bottom, t),
+        top: lerpColor(prev.top, colorStops[i].top, t),
+      }
+    }
+  }
+  const last = colorStops[colorStops.length - 1]
+  return { bottom: last.bottom, top: last.top }
+}
+
+const currentColors = computed(() => getColor(percent.value))
+
+const fillGradient = computed(() => {
+  const c = currentColors.value
+  return `linear-gradient(to top, rgb(${c.bottom.join(',')}), rgb(${c.top.join(',')}))`
+})
+
+const waveColor = computed(() => {
+  const c = currentColors.value.top
+  return `rgb(${c.join(',')})`
+})
+
+const waveBackColor = computed(() => {
+  const c = currentColors.value.bottom
+  return `rgb(${c.join(',')})`
+})
 
 function particleStyle(index) {
   const angle = (index - 1) * 30
@@ -174,7 +228,6 @@ function particleStyle(index) {
   right: 0;
   bottom: 0;
   transition: top 0.8s ease;
-  background: linear-gradient(to top, rgb(60, 100, 210), rgb(110, 150, 240));
 }
 
 .liquid-wave {
@@ -183,27 +236,24 @@ function particleStyle(index) {
   left: -1px;
   right: -1px;
   height: 14px;
-  animation: waveFlow 3s linear infinite;
+  animation: waveFlow 4s linear infinite;
 }
 
-.liquid-wave path {
-  fill: rgb(110, 150, 240);
-}
-
-.completed .liquid-fill {
-  background: linear-gradient(to top, rgb(180, 150, 70), rgb(220, 190, 110));
-}
-
-.completed .liquid-wave path {
-  fill: rgb(220, 190, 110);
+.liquid-wave-back {
+  top: -4px;
+  height: 12px;
+  opacity: 0.5;
+  animation: waveFlowBack 6s linear infinite;
 }
 
 @keyframes waveFlow {
-  0% { transform: translateX(0) translateY(0); }
-  25% { transform: translateX(-12.5%) translateY(-1px); }
-  50% { transform: translateX(-25%) translateY(0); }
-  75% { transform: translateX(-37.5%) translateY(-1px); }
-  100% { transform: translateX(-50%) translateY(0); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes waveFlowBack {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 
 /* 详细信息 */
