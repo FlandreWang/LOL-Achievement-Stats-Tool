@@ -41,34 +41,66 @@
         </div>
       </div>
 
-      <!-- 搜索框 -->
-      <div class="mb-4">
-        <HeroSearch v-model="keyword" />
+      <!-- 搜索框 + 布局切换 -->
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex-1">
+          <HeroSearch v-model="keyword" />
+        </div>
+        <div class="flex items-center gap-1 bg-lol-card border border-lol-border rounded-lg p-1">
+          <button
+            class="p-1.5 rounded transition-colors"
+            :class="achLayout === 'grid' ? 'bg-lol-primary text-white' : 'text-lol-muted hover:text-lol-text'"
+            @click="achLayout = 'grid'"
+          >
+            <Grid3X3 class="w-4 h-4" />
+          </button>
+          <button
+            class="p-1.5 rounded transition-colors"
+            :class="achLayout === 'list' ? 'bg-lol-primary text-white' : 'text-lol-muted hover:text-lol-text'"
+            @click="achLayout = 'list'"
+          >
+            <List class="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      <!-- 英雄网格 -->
+      <!-- 英雄网格/列表 -->
       <EmptyState v-if="filteredHeroes.length === 0" icon="🔍" text="没有找到匹配的英雄" />
 
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-        <AchievementHeroCard
-          v-for="item in filteredHeroes"
-          :key="item.hero.heroId"
-          :hero="item.hero"
-          :completed="item.completed"
-          :completed-at="item.completedAt"
-        />
-      </div>
+      <template v-else>
+        <div v-if="achLayout === 'grid'" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          <AchievementHeroCard
+            v-for="item in filteredHeroes"
+            :key="item.hero.heroId"
+            :hero="item.hero"
+            :completed="item.completed"
+            :completed-at="item.completedAt"
+          />
+        </div>
+        <div v-else class="space-y-2">
+          <HeroListCard
+            v-for="item in filteredHeroes"
+            :key="item.hero.heroId"
+            :hero="item.hero"
+            :completed="item.completed"
+            :completed-at="item.completedAt"
+          />
+        </div>
+      </template>
     </template>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { Grid3X3, List } from 'lucide-vue-next'
 import { useAchievementStore } from '../../stores/achievement'
 import { useRecordStore } from '../../stores/record'
 import { useHeroStore } from '../../stores/hero'
 import { createSearchEngine } from '../../utils/search'
+import { useLayoutPreference } from '../../composables/useLayoutPreference'
 import AchievementHeroCard from './AchievementHeroCard.vue'
+import HeroListCard from '../hero/HeroListCard.vue'
 import HeroSearch from '../hero/HeroSearch.vue'
 import EmptyState from '../common/EmptyState.vue'
 
@@ -78,6 +110,7 @@ const heroStore = useHeroStore()
 
 const selectedAchId = ref('')
 const keyword = ref('')
+const achLayout = useLayoutPreference('lol_achievement_layout', 'grid')
 let searchEngine = null
 
 const achievements = computed(() => achievementStore.achievements)
