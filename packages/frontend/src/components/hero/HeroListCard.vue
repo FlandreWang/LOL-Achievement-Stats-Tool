@@ -1,10 +1,23 @@
 <template>
   <div
     class="bg-lol-card border border-lol-border rounded-lg overflow-hidden transition-all duration-200 hover:border-lol-primary"
-    :class="{ 'compact-mode': compact }"
+    :class="{ 'compact-mode': compact, 'ring-2 ring-lol-primary': selected }"
   >
     <!-- 主体区域：可点击跳转详情 -->
     <div class="flex items-center gap-3" :class="compact ? 'p-2' : 'p-3'">
+      <!-- 多选复选框 -->
+      <button
+        v-if="selectable"
+        class="shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors"
+        :class="selected
+          ? 'bg-lol-primary border-lol-primary text-white'
+          : 'bg-lol-card border-lol-border text-transparent hover:border-lol-primary'"
+        @click.stop="$emit('toggle-select')"
+      >
+        <svg v-if="selected" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+        </svg>
+      </button>
       <!-- 头像 -->
       <RouterLink :to="`/hero/${hero.heroId}`" class="shrink-0">
         <div
@@ -155,7 +168,11 @@ const props = defineProps({
   completedAt: { type: String, default: '' },
   achievementId: { type: String, default: '' },
   compact: { type: Boolean, default: false },
+  selectable: { type: Boolean, default: false },
+  selected: { type: Boolean, default: false },
 })
+
+defineEmits(['toggle-select'])
 
 const recordStore = useRecordStore()
 const achievementStore = useAchievementStore()

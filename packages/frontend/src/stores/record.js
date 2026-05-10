@@ -65,5 +65,12 @@ export const useRecordStore = defineStore('record', () => {
     return { completed, total: heroIds.length }
   }
 
-  return { records, fetchAll, toggle, updateNote, getRecord, getHeroProgress, getAchProgress }
+  async function batchToggle(heroIds, achId) {
+    const results = await Promise.allSettled(
+      heroIds.map(id => toggle(id, achId))
+    )
+    return results
+  }
+
+  return { records, fetchAll, toggle, batchToggle, updateNote, getRecord, getHeroProgress, getAchProgress }
 })
