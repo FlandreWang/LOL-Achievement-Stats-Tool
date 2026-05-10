@@ -174,7 +174,7 @@ function particleStyle(index) {
   right: 0;
   bottom: 0;
   transition: top 0.8s ease;
-  background: rgba(90, 130, 230, 0.5);
+  background: rgba(90, 130, 230, 0.6);
 }
 
 .liquid-wave {
@@ -187,15 +187,15 @@ function particleStyle(index) {
 }
 
 .liquid-wave path {
-  fill: rgba(90, 130, 230, 0.5);
+  fill: rgba(90, 130, 230, 0.85);
 }
 
 .completed .liquid-fill {
-  background: rgba(200, 170, 90, 0.55);
+  background: rgba(200, 170, 90, 0.6);
 }
 
 .completed .liquid-wave path {
-  fill: rgba(200, 170, 90, 0.55);
+  fill: rgba(200, 170, 90, 0.85);
 }
 
 @keyframes waveFlow {
