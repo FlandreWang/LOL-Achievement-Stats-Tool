@@ -151,8 +151,8 @@ function particleStyle(index) {
 /* 液面球体 */
 .liquid-ball {
   position: absolute;
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--color-card, #1A2332);
