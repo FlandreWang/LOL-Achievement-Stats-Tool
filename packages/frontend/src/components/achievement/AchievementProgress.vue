@@ -19,17 +19,16 @@
       <!-- 中心：液面球体 + 数字 -->
       <div class="progress-ring-content">
         <div class="liquid-ball" :class="{ completed: isCompleted }">
-          <div class="liquid-fill" :style="fillStyle"></div>
-          <svg class="liquid-wave liquid-wave-back" :style="{ top: `${liquidOffset}%` }" viewBox="0 0 800 14" preserveAspectRatio="none">
+          <svg class="liquid-wave liquid-wave-back" :style="waveStyle" viewBox="0 0 800 72" preserveAspectRatio="none">
             <path
-              :fill="waveColor"
-              d="M0,7 C20,3 30,11 50,7 C70,3 80,11 100,7 C120,3 130,11 150,7 C170,3 180,11 200,7 C220,3 230,11 250,7 C270,3 280,11 300,7 C320,3 330,11 350,7 C370,3 380,11 400,7 C420,3 430,11 450,7 C470,3 480,11 500,7 C520,3 530,11 550,7 C570,3 580,11 600,7 C620,3 630,11 650,7 C670,3 680,11 700,7 C720,3 730,11 750,7 C770,3 780,11 800,7 L800,14 L0,14 Z"
+              :fill="waveBackColor"
+              d="M0,7 C20,3 30,11 50,7 C70,3 80,11 100,7 C120,3 130,11 150,7 C170,3 180,11 200,7 C220,3 230,11 250,7 C270,3 280,11 300,7 C320,3 330,11 350,7 C370,3 380,11 400,7 C420,3 430,11 450,7 C470,3 480,11 500,7 C520,3 530,11 550,7 C570,3 580,11 600,7 C620,3 630,11 650,7 C670,3 680,11 700,7 C720,3 730,11 750,7 C770,3 780,11 800,7 L800,72 L0,72 Z"
             />
           </svg>
-          <svg class="liquid-wave liquid-wave-front" :style="{ top: `${liquidOffset}%` }" viewBox="0 0 800 14" preserveAspectRatio="none">
+          <svg class="liquid-wave liquid-wave-front" :style="waveStyle" viewBox="0 0 800 72" preserveAspectRatio="none">
             <path
               :fill="waveColor"
-              d="M0,7 C25,2 35,12 60,7 C85,2 95,12 120,7 C145,2 155,12 180,7 C205,2 215,12 240,7 C265,2 275,12 300,7 C325,2 335,12 360,7 C385,2 395,12 420,7 C445,2 455,12 480,7 C505,2 515,12 540,7 C565,2 575,12 600,7 C625,2 635,12 660,7 C685,2 695,12 720,7 C745,2 755,12 780,7 L800,7 L800,14 L0,14 Z"
+              d="M0,7 C25,2 35,12 60,7 C85,2 95,12 120,7 C145,2 155,12 180,7 C205,2 215,12 240,7 C265,2 275,12 300,7 C325,2 335,12 360,7 C385,2 395,12 420,7 C445,2 455,12 480,7 C505,2 515,12 540,7 C565,2 575,12 600,7 C625,2 635,12 660,7 C685,2 695,12 720,7 C745,2 755,12 780,7 L800,7 L800,72 L0,72 Z"
             />
           </svg>
         </div>
@@ -115,16 +114,17 @@ function getColor(pct) {
 
 const currentColors = computed(() => getColor(percent.value))
 
-const fillStyle = computed(() => {
-  const c = currentColors.value
-  return {
-    top: `${liquidOffset.value}%`,
-    background: `linear-gradient(to top, rgb(${c.bottom.join(',')}), rgb(${c.top.join(',')}))`,
-  }
-})
+const waveStyle = computed(() => ({
+  top: `${liquidOffset.value}%`,
+}))
 
 const waveColor = computed(() => {
   const c = currentColors.value.top
+  return `rgb(${c.join(',')})`
+})
+
+const waveBackColor = computed(() => {
+  const c = currentColors.value.bottom
   return `rgb(${c.join(',')})`
 })
 
@@ -219,7 +219,7 @@ function particleStyle(index) {
     0 0 12px rgba(200, 170, 90, 0.4);
 }
 
-.liquid-fill {
+.liquid-wave {
   position: absolute;
   left: 0;
   right: 0;
@@ -227,21 +227,12 @@ function particleStyle(index) {
   transition: top 0.8s ease;
 }
 
-.liquid-wave {
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  height: 14px;
-  transition: top 0.8s ease;
-  pointer-events: none;
-}
-
 .liquid-wave-front {
   animation: waveFlow 3s linear infinite;
 }
 
 .liquid-wave-back {
-  opacity: 0.4;
+  opacity: 0.5;
   animation: waveFlow 5s linear infinite reverse;
 }
 
