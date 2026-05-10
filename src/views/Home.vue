@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useHeroStore } from '../stores/hero'
 import HeroGrid from '../components/hero/HeroGrid.vue'
 import HeroSearch from '../components/hero/HeroSearch.vue'
@@ -19,8 +19,13 @@ import { createSearchEngine } from '../utils/search'
 
 const heroStore = useHeroStore()
 const keyword = ref('')
-
 let searchEngine = null
+
+watch(() => heroStore.heroes, (heroes) => {
+  if (heroes.length > 0) {
+    searchEngine = createSearchEngine(heroes)
+  }
+}, { immediate: true })
 
 const filteredHeroes = computed(() => {
   if (!keyword.value.trim()) return heroStore.heroes
@@ -28,8 +33,5 @@ const filteredHeroes = computed(() => {
   return searchEngine.search(keyword.value).map(r => r.item)
 })
 
-onMounted(async () => {
-  await heroStore.fetchHeroes()
-  searchEngine = createSearchEngine(heroStore.heroes)
-})
+onMounted(() => heroStore.fetchHeroes())
 </script>
