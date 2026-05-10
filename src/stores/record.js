@@ -55,6 +55,13 @@ export const useRecordStore = defineStore('record', () => {
     return { completed, total: totalAch }
   }
 
+  function getAchProgress(achId, heroIds) {
+    const completed = heroIds.filter(id =>
+      records.value[id]?.[achId]?.completed
+    ).length
+    return { completed, total: heroIds.length }
+  }
+
   function clearAll() {
     records.value = {}
     save()
@@ -62,5 +69,5 @@ export const useRecordStore = defineStore('record', () => {
 
   load()
 
-  return { records, toggle, updateNote, cleanByAchId, getRecord, getHeroProgress, clearAll }
+  return { records, toggle, updateNote, cleanByAchId, getRecord, getHeroProgress, getAchProgress, clearAll }
 })
