@@ -51,6 +51,9 @@
       <section class="p-4 bg-lol-card border border-lol-border rounded-lg">
         <h2 class="text-sm font-medium text-lol-text mb-3">数据迁移</h2>
         <p class="text-xs text-lol-muted mb-3">将浏览器 localStorage 中的旧数据迁移到 MySQL 数据库</p>
+        <div v-if="localInfo" class="text-xs text-lol-muted mb-3 space-y-1">
+          <p>localStorage 中有：{{ localInfo.achievements }} 条成就，{{ localInfo.completedRecords }} 条已完成记录（{{ localInfo.heroCount }} 个英雄）</p>
+        </div>
         <button
           @click="handleMigrate"
           :disabled="migrating"
@@ -58,9 +61,11 @@
         >
           {{ migrating ? '迁移中...' : '从 localStorage 迁移' }}
         </button>
-        <p v-if="migrateResult" class="text-xs text-lol-muted mt-2">
-          已迁移 {{ migrateResult.achievements }} 条成就，{{ migrateResult.records }} 条记录
-        </p>
+        <div v-if="migrateResult" class="text-xs mt-2 space-y-1">
+          <p class="text-lol-muted">已迁移 {{ migrateResult.achievements }} 条成就，{{ migrateResult.records }} 条记录</p>
+          <p v-if="migrateResult.skipped" class="text-yellow-400">跳过 {{ migrateResult.skipped }} 条（英雄不存在）</p>
+          <p v-for="(err, i) in migrateResult.errors" :key="i" class="text-red-400">{{ err }}</p>
+        </div>
       </section>
 
       <section class="p-4 bg-lol-card border border-lol-border rounded-lg">
@@ -100,7 +105,7 @@ import { useHeroStore } from '../stores/hero'
 import { useAchievementStore } from '../stores/achievement'
 import { useRecordStore } from '../stores/record'
 import { useThemeStore } from '../stores/theme'
-import { exportToFile, importFromFile, migrateFromLocalStorage } from '../utils/export'
+import { exportToFile, importFromFile, migrateFromLocalStorage, getLocalStorageInfo } from '../utils/export'
 import ConfirmDialog from '../components/common/ConfirmDialog.vue'
 import Toast from '../components/common/Toast.vue'
 
@@ -111,6 +116,7 @@ const themeStore = useThemeStore()
 const toast = ref(null)
 const migrating = ref(false)
 const migrateResult = ref(null)
+const localInfo = ref(null)
 
 const themeOptions = [
   { label: '跟随系统', value: 'system' },
@@ -134,6 +140,7 @@ function formatDate(dateStr) {
 
 onMounted(() => {
   heroStore.fetchCacheStatus()
+  localInfo.value = getLocalStorageInfo()
 })
 
 async function refreshHeroes() {

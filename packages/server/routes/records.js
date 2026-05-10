@@ -69,22 +69,29 @@ router.post('/import', async (req, res) => {
       return res.status(400).json({ code: -1, message: 'records 必须是对象' })
     }
     let imported = 0
+    let skipped = 0
     for (const [heroId, achMap] of Object.entries(records)) {
       for (const [achievementId, rec] of Object.entries(achMap)) {
         if (!rec.completed) continue
         const completedAt = rec.completedAt
           ? new Date(rec.completedAt).toISOString().slice(0, 19).replace('T', ' ')
           : new Date().toISOString().slice(0, 19).replace('T', ' ')
-        await db.execute(
-          `INSERT INTO records (hero_id, achievement_id, completed, completed_at, note)
-           VALUES (?, ?, TRUE, ?, ?)
-           ON DUPLICATE KEY UPDATE completed = TRUE, completed_at = VALUES(completed_at), note = VALUES(note)`,
-          [heroId, achievementId, completedAt, rec.note || '']
-        )
-        imported++
+        try {
+          await db.execute(
+            `INSERT INTO records (hero_id, achievement_id, completed, completed_at, note)
+             VALUES (?, ?, TRUE, ?, ?)
+             ON DUPLICATE KEY UPDATE completed = TRUE, completed_at = VALUES(completed_at), note = VALUES(note)`,
+            [heroId, achievementId, completedAt, rec.note || '']
+          )
+          imported++
+        } catch (err) {
+          // 外键约束失败（英雄或成就不存在）时跳过
+          console.warn(`跳过记录 ${heroId}/${achievementId}:`, err.message)
+          skipped++
+        }
       }
     }
-    res.json({ code: 0, data: { imported } })
+    res.json({ code: 0, data: { imported, skipped } })
   } catch (error) {
     console.error('批量导入记录失败:', error)
     res.status(500).json({ code: -1, message: error.message })
