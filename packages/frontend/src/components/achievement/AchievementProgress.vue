@@ -20,16 +20,16 @@
       <div class="progress-ring-content">
         <div class="liquid-ball" :class="{ completed: isCompleted }">
           <div class="liquid-fill" :style="{ top: `${liquidOffset}%`, background: fillGradient }">
-            <svg class="liquid-wave" viewBox="0 0 400 20" preserveAspectRatio="none">
-              <path
-                :fill="waveColor"
-                d="M0,10 C12,4 18,16 30,10 C42,4 48,16 60,10 C72,4 78,16 90,10 C102,4 108,16 120,10 C132,4 138,16 150,10 C162,4 168,16 180,10 C192,4 198,16 210,10 C222,4 228,16 240,10 C252,4 258,16 270,10 C282,4 288,16 300,10 C312,4 318,16 330,10 C342,4 348,16 360,10 C372,4 378,16 390,10 L400,10 L400,20 L0,20 Z"
-              />
-            </svg>
-            <svg class="liquid-wave liquid-wave-back" viewBox="0 0 400 20" preserveAspectRatio="none">
+            <svg class="liquid-wave liquid-wave-back" viewBox="0 0 400 22" preserveAspectRatio="none">
               <path
                 :fill="waveBackColor"
-                d="M0,12 C15,6 20,18 35,12 C50,6 55,18 70,12 C85,6 90,18 105,12 C120,6 125,18 140,12 C155,6 160,18 175,12 C190,6 195,18 210,12 C225,6 230,18 245,12 C260,6 265,18 280,12 C295,6 300,18 315,12 C330,6 335,18 350,12 C365,6 370,18 385,12 L400,12 L400,20 L0,20 Z"
+                d="M0,12 C15,6 20,18 35,12 C50,6 55,18 70,12 C85,6 90,18 105,12 C120,6 125,18 140,12 C155,6 160,18 175,12 C190,6 195,18 210,12 C225,6 230,18 245,12 C260,6 265,18 280,12 C295,6 300,18 315,12 C330,6 335,18 350,12 C365,6 370,18 385,12 L400,12 L400,22 L0,22 Z"
+              />
+            </svg>
+            <svg class="liquid-wave" viewBox="0 0 400 22" preserveAspectRatio="none">
+              <path
+                :fill="waveColor"
+                d="M0,10 C12,4 18,16 30,10 C42,4 48,16 60,10 C72,4 78,16 90,10 C102,4 108,16 120,10 C132,4 138,16 150,10 C162,4 168,16 180,10 C192,4 198,16 210,10 C222,4 228,16 240,10 C252,4 258,16 270,10 C282,4 288,16 300,10 C312,4 318,16 330,10 C342,4 348,16 360,10 C372,4 378,16 390,10 L400,10 L400,22 L0,22 Z"
               />
             </svg>
           </div>
@@ -127,7 +127,7 @@ const waveColor = computed(() => {
 })
 
 const waveBackColor = computed(() => {
-  const c = currentColors.value.bottom
+  const c = currentColors.value.top
   return `rgb(${c.join(',')})`
 })
 
@@ -227,6 +227,7 @@ function particleStyle(index) {
   left: 0;
   right: 0;
   bottom: 0;
+  top: -4px;
   transition: top 0.8s ease;
 }
 
@@ -235,14 +236,14 @@ function particleStyle(index) {
   top: -7px;
   left: -1px;
   right: -1px;
-  height: 14px;
+  height: 22px;
   animation: waveFlow 4s linear infinite;
 }
 
 .liquid-wave-back {
   top: -4px;
-  height: 12px;
-  opacity: 0.5;
+  height: 20px;
+  opacity: 0.35;
   animation: waveFlowBack 6s linear infinite;
 }
 
