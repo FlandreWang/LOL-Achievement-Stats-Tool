@@ -28,12 +28,9 @@
       <!-- 中心：液面球体 + 数字 -->
       <div class="progress-ring-content">
         <div class="liquid-ball" :class="{ completed: isCompleted }">
-          <div class="liquid-fill" :style="{ transform: `translateY(${liquidOffset}%)` }">
-            <svg class="liquid-wave liquid-wave-back" viewBox="0 0 100 20" preserveAspectRatio="none">
-              <path d="M0,10 C12.5,5 12.5,15 25,10 C37.5,5 37.5,15 50,10 C62.5,5 62.5,15 75,10 C87.5,5 87.5,15 100,10 L100,20 L0,20 Z" />
-            </svg>
-            <svg class="liquid-wave liquid-wave-front" viewBox="0 0 100 20" preserveAspectRatio="none">
-              <path d="M0,10 C12.5,5 12.5,15 25,10 C37.5,5 37.5,15 50,10 C62.5,5 62.5,15 75,10 C87.5,5 87.5,15 100,10 L100,20 L0,20 Z" />
+          <div class="liquid-fill" :style="{ top: `${liquidOffset}%` }">
+            <svg class="liquid-wave" viewBox="0 0 200 20" preserveAspectRatio="none">
+              <path d="M0,10 C25,0 25,20 50,10 C75,0 75,20 100,10 C125,0 125,20 150,10 C175,0 175,20 200,10 L200,20 L0,20 Z" />
             </svg>
           </div>
         </div>
@@ -189,42 +186,34 @@ function particleStyle(index) {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 100%;
-  transition: transform 0.8s ease;
+  transition: top 0.8s ease;
+  background: color-mix(in srgb, var(--lol-primary) 35%, transparent);
 }
 
 .liquid-wave {
   position: absolute;
+  top: -7px;
   left: -1px;
   right: -1px;
   height: 14px;
-  bottom: 100%;
+  animation: waveFlow 3s linear infinite;
 }
 
 .liquid-wave path {
-  fill: color-mix(in srgb, var(--lol-primary) 50%, transparent);
-}
-
-.liquid-wave-back {
-  opacity: 0.5;
-  animation: waveFlow 4s linear infinite;
-}
-
-.liquid-wave-front {
-  animation: waveFlow 3s linear infinite reverse;
-}
-
-.completed .liquid-wave path {
-  fill: var(--lol-gold);
+  fill: color-mix(in srgb, var(--lol-primary) 35%, transparent);
 }
 
 .completed .liquid-fill {
-  filter: brightness(1.1);
+  background: color-mix(in srgb, var(--lol-gold) 40%, transparent);
+}
+
+.completed .liquid-wave path {
+  fill: color-mix(in srgb, var(--lol-gold) 40%, transparent);
 }
 
 @keyframes waveFlow {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50px); }
+  100% { transform: translateX(-50%); }
 }
 
 /* 详细信息 */
