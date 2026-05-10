@@ -141,6 +141,7 @@ const props = defineProps({
 
 async function toggleCompletion() {
   if (!props.achievementId) return
+  if (props.completed && !confirm('确认将该成就标记为未完成？')) return
   await recordStore.toggle(props.hero.heroId, props.achievementId)
 }
 
