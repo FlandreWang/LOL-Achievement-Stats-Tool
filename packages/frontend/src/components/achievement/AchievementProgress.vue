@@ -155,7 +155,7 @@ function particleStyle(index) {
   font-variant-numeric: tabular-nums;
   position: relative;
   z-index: 2;
-  text-shadow: 0 0 4px var(--lol-card);
+  text-shadow: 0 0 4px var(--color-card, #1A2332);
 }
 
 .completed .progress-percent {
@@ -169,7 +169,7 @@ function particleStyle(index) {
   height: 60px;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--lol-card);
+  background: var(--color-card, #1A2332);
   border: 1px solid rgba(90, 130, 230, 0.3);
   box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
 }
@@ -187,7 +187,7 @@ function particleStyle(index) {
   right: 0;
   bottom: 0;
   transition: top 0.8s ease;
-  background: rgba(90, 130, 230, 0.35);
+  background: rgba(90, 130, 230, 0.5);
 }
 
 .liquid-wave {
@@ -200,15 +200,15 @@ function particleStyle(index) {
 }
 
 .liquid-wave path {
-  fill: rgba(90, 130, 230, 0.35);
+  fill: rgba(90, 130, 230, 0.5);
 }
 
 .completed .liquid-fill {
-  background: rgba(200, 170, 90, 0.4);
+  background: rgba(200, 170, 90, 0.55);
 }
 
 .completed .liquid-wave path {
-  fill: rgba(200, 170, 90, 0.4);
+  fill: rgba(200, 170, 90, 0.55);
 }
 
 @keyframes waveFlow {
