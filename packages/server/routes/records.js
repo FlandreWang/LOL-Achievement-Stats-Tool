@@ -72,11 +72,14 @@ router.post('/import', async (req, res) => {
     for (const [heroId, achMap] of Object.entries(records)) {
       for (const [achievementId, rec] of Object.entries(achMap)) {
         if (!rec.completed) continue
+        const completedAt = rec.completedAt
+          ? new Date(rec.completedAt).toISOString().slice(0, 19).replace('T', ' ')
+          : new Date().toISOString().slice(0, 19).replace('T', ' ')
         await db.execute(
           `INSERT INTO records (hero_id, achievement_id, completed, completed_at, note)
            VALUES (?, ?, TRUE, ?, ?)
            ON DUPLICATE KEY UPDATE completed = TRUE, completed_at = VALUES(completed_at), note = VALUES(note)`,
-          [heroId, achievementId, rec.completedAt || new Date().toISOString(), rec.note || '']
+          [heroId, achievementId, completedAt, rec.note || '']
         )
         imported++
       }
