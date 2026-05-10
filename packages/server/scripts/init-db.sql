@@ -1,0 +1,41 @@
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS lolachievements CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE lolachievements;
+
+-- 英雄数据表
+CREATE TABLE IF NOT EXISTS heroes (
+  hero_id VARCHAR(10) PRIMARY KEY COMMENT '英雄ID',
+  name VARCHAR(50) NOT NULL COMMENT '中文名',
+  title VARCHAR(50) NOT NULL COMMENT '中文称号',
+  alias VARCHAR(50) NOT NULL COMMENT '英文名',
+  avatar VARCHAR(255) NOT NULL COMMENT '头像URL',
+  roles JSON COMMENT '角色标签',
+  fetched_at DATETIME NOT NULL COMMENT '数据拉取时间',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_fetched_at (fetched_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='英雄数据缓存';
+
+-- 成就定义表
+CREATE TABLE IF NOT EXISTS achievements (
+  id VARCHAR(20) PRIMARY KEY COMMENT '成就ID',
+  name VARCHAR(100) NOT NULL COMMENT '成就名称',
+  description TEXT COMMENT '成就描述',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成就定义';
+
+-- 成就记录表
+CREATE TABLE IF NOT EXISTS records (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  hero_id VARCHAR(10) NOT NULL COMMENT '英雄ID',
+  achievement_id VARCHAR(20) NOT NULL COMMENT '成就ID',
+  completed BOOLEAN DEFAULT FALSE COMMENT '是否完成',
+  completed_at DATETIME COMMENT '完成时间',
+  note TEXT COMMENT '备注',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_hero_ach (hero_id, achievement_id),
+  FOREIGN KEY (hero_id) REFERENCES heroes(hero_id) ON DELETE CASCADE,
+  FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成就记录';
