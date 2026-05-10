@@ -41,7 +41,8 @@ lolachievements/
 │   ├── stores/
 │   │   ├── hero.js                  # 英雄数据 store
 │   │   ├── achievement.js           # 成就定义 store
-│   │   └── record.js                # 成就记录 store
+│   │   ├── record.js                # 成就记录 store
+│   │   └── theme.js                 # 主题 store（跟随系统/手动切换）
 │   ├── views/
 │   │   ├── Home.vue                 # 首页：英雄网格 + 搜索
 │   │   ├── HeroDetail.vue           # 英雄详情：成就勾选
@@ -162,10 +163,20 @@ const fuseOptions = {
 
 ## 4. UI 设计规范
 
-### 4.1 主题色
+### 4.1 主题策略
+
+**默认跟随系统**，用户可手动切换（亮色 / 暗色 / 跟随系统），选择持久化到 localStorage。
 
 ```js
-// tailwind.config.js 扩展色
+// tailwind.config.js
+export default {
+  darkMode: 'class',  // 通过 <html class="dark"> 切换
+  // ...
+}
+```
+
+```js
+// 暗色主题色（dark 模式）
 colors: {
   lol: {
     primary: '#0AC8B9',    // 破败王者青
@@ -177,7 +188,17 @@ colors: {
     muted: '#8B9DAF',      // 次要文字
   }
 }
+
+// 亮色主题色（light 模式，不加 dark class 时生效）
+// bg → #F5F5F5, card → #FFFFFF, border → #E0E0E0, text → #1A1A1A, muted → #666666
+// primary / gold 保持不变
 ```
+
+**主题 Store**（`src/stores/theme.js`）：
+- state: `mode`（`'system'` | `'light'` | `'dark'`）
+- getters: `effectiveTheme`（解析 system → 实际 light/dark）
+- actions: `setMode(mode)`、`initTheme()`（读取 localStorage，注册 `prefers-color-scheme` 监听）
+- 初始化时自动应用 `<html class="dark">` 的添加/移除
 
 ### 4.2 响应式断点
 

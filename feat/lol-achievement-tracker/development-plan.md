@@ -26,7 +26,7 @@
 - 安装 Vue 3、Vue Router、Pinia、Tailwind CSS、PostCSS、Autoprefixer、@vitejs/plugin-vue
 - 安装 fuse.js、pinyin-pro、lucide-vue-next
 - 配置 `vite.config.js`（Vue 插件）
-- 配置 `tailwind.config.js`（暗色主题、自定义色值）
+- 配置 `tailwind.config.js`（`darkMode: 'class'`、亮暗双主题色值）
 - 配置 `postcss.config.js`
 - 更新 `package.json` scripts
 
@@ -34,13 +34,23 @@
 - 创建 `src/main.js`（Vue app 入口，挂载 Router、Pinia）
 - 创建 `src/App.vue`（根组件，RouterView + 全局布局）
 - 创建 `src/router/index.js`（4 个路由：Home / HeroDetail / AchievementManage / Settings）
-- 创建 `src/styles/main.css`（Tailwind 指令 + 全局暗色样式）
+- 创建 `src/styles/main.css`（Tailwind 指令 + 亮暗双主题全局样式）
 - 更新 `index.html`（标题、meta、viewport）
 
 ### T0.3 通用组件
 - `src/components/common/ConfirmDialog.vue`（二次确认弹窗）
 - `src/components/common/Toast.vue`（消息提示）
 - `src/components/common/EmptyState.vue`（空状态占位）
+
+### T0.4 主题 Store & 切换机制
+- 创建 `src/stores/theme.js`（Pinia）
+  - state: `mode`（`'system'` | `'light'` | `'dark'`，默认 `'system'`）
+  - getters: `effectiveTheme`（将 system 解析为实际 light/dark）
+  - actions: `setMode(mode)`、`initTheme()`
+  - `initTheme()`：读取 localStorage 缓存，注册 `matchMedia('prefers-color-scheme: dark')` 的 change 监听
+  - 切换时操作 `<html>` 的 `class`：dark 模式添加 `dark`，light 模式移除 `dark`
+  - 持久化 mode 到 localStorage（key: `lol_theme`）
+- 在 `main.js` 中调用 `themeStore.initTheme()` 确保首屏无闪烁
 
 **提交**：`feat?: initialize Vue 3 + Vite project with Tailwind CSS [ai][model: mimo-v2.5-pro]`
 
@@ -203,6 +213,7 @@
 
 ### T6.2 设置页
 - `src/views/Settings.vue`
+  - 主题切换（跟随系统 / 亮色 / 暗色 三选一）→ themeStore.setMode()
   - 刷新英雄数据按钮 → heroStore.refreshHeroes()
   - 导出数据按钮 → exportToFile()
   - 导入数据按钮 → 文件选择 → importFromFile()

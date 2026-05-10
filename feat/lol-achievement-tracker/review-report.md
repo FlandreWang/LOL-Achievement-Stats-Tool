@@ -90,9 +90,9 @@ P2 任务提到"加载态骨架屏"，但未明确骨架屏的实现方式（CSS
 
 英雄数据会随游戏版本更新。建议在 heroes.json 中增加 `version` 和 `updatedAt` 字段，方便判断缓存是否过期。
 
-### 4.3 Tailwind 暗色主题配置
+### 4.3 主题方案已完善
 
-建议在 `tailwind.config.js` 中设置 `darkMode: 'class'`，通过根元素 class 切换暗色模式，便于后续扩展亮色主题。
+主题策略已调整为：默认跟随系统（`prefers-color-scheme`），用户可手动切换（亮色/暗色/跟随系统）。使用 `darkMode: 'class'` + theme store 管理，选择持久化到 localStorage。
 
 ---
 
