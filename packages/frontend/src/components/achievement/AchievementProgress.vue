@@ -174,7 +174,7 @@ function particleStyle(index) {
   right: 0;
   bottom: 0;
   transition: top 0.8s ease;
-  background: rgb(90, 130, 230);
+  background: linear-gradient(to top, rgb(60, 100, 210), rgb(110, 150, 240));
 }
 
 .liquid-wave {
@@ -183,29 +183,27 @@ function particleStyle(index) {
   left: -1px;
   right: -1px;
   height: 14px;
-  animation: waveFlow 3s linear infinite, waveBob 2.5s ease-in-out infinite;
+  animation: waveFlow 3s linear infinite;
 }
 
 .liquid-wave path {
-  fill: rgb(90, 130, 230);
+  fill: rgb(110, 150, 240);
 }
 
 .completed .liquid-fill {
-  background: rgb(200, 170, 90);
+  background: linear-gradient(to top, rgb(180, 150, 70), rgb(220, 190, 110));
 }
 
 .completed .liquid-wave path {
-  fill: rgb(200, 170, 90);
+  fill: rgb(220, 190, 110);
 }
 
 @keyframes waveFlow {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-@keyframes waveBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-1px); }
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(-12.5%) translateY(-1px); }
+  50% { transform: translateX(-25%) translateY(0); }
+  75% { transform: translateX(-37.5%) translateY(-1px); }
+  100% { transform: translateX(-50%) translateY(0); }
 }
 
 /* 详细信息 */
