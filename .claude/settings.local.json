@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat ~/.claude/CLAUDE.md 2>/dev/null || echo \"FILE_NOT_FOUND\")",
+      "Read(//c/Users/79377/.claude/**)"
+    ]
+  }
+}
