@@ -44,16 +44,17 @@
       </RouterLink>
 
       <!-- 成就维度：完成状态和时间 -->
-      <div v-if="completed !== undefined" class="shrink-0 text-right">
-        <span
-          class="text-xs px-2 py-0.5 rounded-full"
-          :class="completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-lol-border/30 text-lol-muted'"
+      <div v-if="completed !== undefined" class="shrink-0 flex items-center gap-2">
+        <button
+          class="text-xs px-2 py-0.5 rounded-full transition-colors cursor-pointer"
+          :class="completed ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-lol-border/30 text-lol-muted hover:bg-lol-border/50'"
+          @click.stop="toggleCompletion"
         >
           {{ completed ? '已完成' : '未完成' }}
-        </span>
-        <div v-if="completedAt" class="text-xs text-lol-muted mt-1">
+        </button>
+        <span v-if="completedAt" class="text-xs text-lol-muted whitespace-nowrap">
           {{ formatDate(completedAt) }}
-        </div>
+        </span>
       </div>
 
       <!-- 总体成就进度条：英雄维度下显示 -->
@@ -126,8 +127,14 @@ const props = defineProps({
   hero: { type: Object, required: true },
   completed: { type: Boolean, default: undefined },
   completedAt: { type: String, default: '' },
+  achievementId: { type: String, default: '' },
   compact: { type: Boolean, default: false },
 })
+
+async function toggleCompletion() {
+  if (!props.achievementId) return
+  await recordStore.toggle(props.hero.heroId, props.achievementId)
+}
 
 const recordStore = useRecordStore()
 const achievementStore = useAchievementStore()

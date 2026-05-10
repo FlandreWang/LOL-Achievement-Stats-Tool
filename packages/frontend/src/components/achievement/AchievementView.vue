@@ -77,6 +77,7 @@
             :hero="item.hero"
             :completed="item.completed"
             :completed-at="item.completedAt"
+            :achievement-id="selectedAchId"
             compact
           />
         </div>
