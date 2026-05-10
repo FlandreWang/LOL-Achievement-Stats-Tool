@@ -25,8 +25,18 @@
           transform="rotate(-90 50 50)"
         />
       </svg>
-      <!-- 中心数字 -->
+      <!-- 中心：液面球体 + 数字 -->
       <div class="progress-ring-content">
+        <div class="liquid-ball" :class="{ completed: isCompleted }">
+          <div class="liquid-fill" :style="{ transform: `translateY(${liquidOffset}%)` }">
+            <svg class="liquid-wave liquid-wave-back" viewBox="0 0 100 20" preserveAspectRatio="none">
+              <path d="M0,10 C12.5,5 12.5,15 25,10 C37.5,5 37.5,15 50,10 C62.5,5 62.5,15 75,10 C87.5,5 87.5,15 100,10 L100,20 L0,20 Z" />
+            </svg>
+            <svg class="liquid-wave liquid-wave-front" viewBox="0 0 100 20" preserveAspectRatio="none">
+              <path d="M0,10 C12.5,5 12.5,15 25,10 C37.5,5 37.5,15 50,10 C62.5,5 62.5,15 75,10 C87.5,5 87.5,15 100,10 L100,20 L0,20 Z" />
+            </svg>
+          </div>
+        </div>
         <span class="progress-percent">{{ percent }}%</span>
       </div>
     </div>
@@ -72,6 +82,9 @@ const strokeDashoffset = computed(() => {
   const offset = circumference - (percent.value / 100) * circumference
   return offset
 })
+
+// 液面偏移：0% 时在底部(100%)，100% 时充满(0%)
+const liquidOffset = computed(() => 100 - percent.value)
 
 const isCompleted = computed(() => props.total > 0 && props.completed === props.total)
 
@@ -143,10 +156,75 @@ function particleStyle(index) {
   font-weight: 700;
   color: var(--lol-text);
   font-variant-numeric: tabular-nums;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 4px var(--lol-card);
 }
 
 .completed .progress-percent {
   color: var(--lol-gold);
+}
+
+/* 液面球体 */
+.liquid-ball {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--lol-card);
+  border: 1px solid color-mix(in srgb, var(--lol-primary) 30%, transparent);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.liquid-ball.completed {
+  border-color: var(--lol-gold);
+  box-shadow:
+    inset 0 0 8px rgba(0, 0, 0, 0.1),
+    0 0 12px rgba(200, 170, 90, 0.4);
+}
+
+.liquid-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  transition: transform 0.8s ease;
+}
+
+.liquid-wave {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 14px;
+  bottom: 100%;
+}
+
+.liquid-wave path {
+  fill: color-mix(in srgb, var(--lol-primary) 50%, transparent);
+}
+
+.liquid-wave-back {
+  opacity: 0.5;
+  animation: waveFlow 4s linear infinite;
+}
+
+.liquid-wave-front {
+  animation: waveFlow 3s linear infinite reverse;
+}
+
+.completed .liquid-wave path {
+  fill: var(--lol-gold);
+}
+
+.completed .liquid-fill {
+  filter: brightness(1.1);
+}
+
+@keyframes waveFlow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50px); }
 }
 
 /* 详细信息 */
