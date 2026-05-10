@@ -183,7 +183,7 @@ function particleStyle(index) {
   left: -1px;
   right: -1px;
   height: 14px;
-  animation: waveFlow 3s linear infinite;
+  animation: waveFlow 3s linear infinite, waveBob 2s ease-in-out infinite;
 }
 
 .liquid-wave path {
@@ -201,6 +201,11 @@ function particleStyle(index) {
 @keyframes waveFlow {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+@keyframes waveBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 /* 详细信息 */
